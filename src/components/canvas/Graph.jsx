@@ -48,6 +48,7 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
       return CategoryColors.other.main;
     };
 
+    // Tuned D3 force simulation layout parameters
     const simulation = d3
       .forceSimulation(nodes)
       .force(
@@ -55,13 +56,14 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
         d3
           .forceLink(links)
           .id((d) => d.id)
-          .distance(140)
+          .distance(200) // Increased base link distance (180px - 220px)
           .strength(0.6)
       )
-      .force("charge", d3.forceManyBody().strength(-340))
+      .force("charge", d3.forceManyBody().strength(-500)) // Repulsion -500 for breathing room
       .force("center", d3.forceCenter(width / 2, height / 2))
-      .force("collide", d3.forceCollide(48));
+      .force("collide", d3.forceCollide(50)); // 50px collide buffer
 
+    // Edge lines
     const link = g
       .append("g")
       .selectAll("line")
@@ -72,22 +74,51 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
       .attr("stroke-opacity", 0.65)
       .attr("stroke-dasharray", "4,3");
 
-    const linkLabel = g
+    // Edge Labels: Solid pill badges centered along the edge masking out dashed connecting lines
+    const linkLabelGroup = g
       .append("g")
-      .selectAll("text")
-      .data(links)
-      .join("text")
+      .selectAll("g")
+      .data(links.filter((l) => Boolean(l.label)))
+      .join("g")
+      .attr("pointer-events", "none");
+
+    linkLabelGroup
+      .append("rect")
+      .attr("fill", T.bg) // #FAF7F2 background match
+      .attr("stroke", "#D5CCC0") // crisp subtle border
+      .attr("stroke-width", 1)
+      .attr("rx", 4)
+      .attr("ry", 4);
+
+    linkLabelGroup
+      .append("text")
       .attr("font-family", fontMono)
-      .attr("font-size", "10px")
+      .attr("font-size", "11px")
       .attr("font-weight", "500")
-      .attr("letter-spacing", "0.04em")
+      .attr("fill", "#1E1E1E") // high contrast dark neutral
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "central")
       .style("font-feature-settings", '"tnum" 1')
-      .attr("fill", T.inkDim)
-      .attr("paint-order", "stroke")
-      .attr("stroke", T.bg)
-      .attr("stroke-width", "3px")
       .text((d) => d.label || "");
 
+    // Size label background rects dynamically to match text bounding box with 3px 8px padding
+    linkLabelGroup.each(function () {
+      const groupEl = d3.select(this);
+      const textEl = groupEl.select("text").node();
+      if (textEl) {
+        const bbox = textEl.getBBox();
+        const paddingX = 8;
+        const paddingY = 3;
+        groupEl
+          .select("rect")
+          .attr("x", bbox.x - paddingX)
+          .attr("y", bbox.y - paddingY)
+          .attr("width", bbox.width + paddingX * 2)
+          .attr("height", bbox.height + paddingY * 2);
+      }
+    });
+
+    // Nodes
     const node = g
       .append("g")
       .selectAll("g")
@@ -113,36 +144,47 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
           })
       );
 
+    // Base Circle (layering #FAF7F2 to block obtrusive background grid bleed-through)
     node
       .append("circle")
-      .attr("r", 22)
-      .attr("fill", (d) => getColor(d.type))
-      .attr("fill-opacity", 0.16)
-      .attr("stroke", (d) => getColor(d.type))
-      .attr("stroke-width", 2.2);
+      .attr("r", 24)
+      .attr("fill", T.bg);
 
+    // Tinted Circle with solid category border
+    node
+      .append("circle")
+      .attr("r", 24)
+      .attr("fill", (d) => getColor(d.type))
+      .attr("fill-opacity", 0.18) // Soft semi-translucent category tint
+      .attr("stroke", (d) => getColor(d.type)) // Crisp solid category border
+      .attr("stroke-width", 2.5);
+
+    // Node Interior Badge Initials (Solid category color token for sharp contrast)
     node
       .append("text")
       .attr("text-anchor", "middle")
-      .attr("dy", 4)
+      .attr("dominant-baseline", "central")
       .attr("font-family", fontMono)
-      .attr("font-size", "11px")
-      .attr("font-weight", "600")
+      .attr("font-size", "12px")
+      .attr("font-weight", "700")
       .attr("letter-spacing", "0.04em")
-      .attr("fill", (d) => getColor(d.type))
+      .attr("fill", (d) => getColor(d.type)) // Sharp solid category color initials
       .text((d) => (d.name || "?").slice(0, 2).toUpperCase());
 
+
+    // External Entity Text Labels (13px IBM Plex Sans semi-bold with #FAF7F2 text halo)
     node
       .append("text")
       .attr("text-anchor", "middle")
-      .attr("dy", 38)
+      .attr("dy", 40) // Offset 10px below the 24px circle
       .attr("font-family", fontSans)
-      .attr("font-size", "12px")
+      .attr("font-size", "13px")
       .attr("font-weight", "600")
-      .attr("fill", T.ink)
+      .attr("fill", T.ink) // #1E1E1E
       .attr("paint-order", "stroke")
-      .attr("stroke", T.bg)
-      .attr("stroke-width", "4px")
+      .attr("stroke", T.bg) // #FAF7F2 background halo
+      .attr("stroke-width", "5px")
+      .attr("stroke-linejoin", "round")
       .text((d) => d.name);
 
     node.on("click", (ev, d) => onSelectEntity(d));
@@ -153,9 +195,12 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
         .attr("y1", (d) => d.source.y)
         .attr("x2", (d) => d.target.x)
         .attr("y2", (d) => d.target.y);
-      linkLabel
-        .attr("x", (d) => (d.source.x + d.target.x) / 2)
-        .attr("y", (d) => (d.source.y + d.target.y) / 2 - 4);
+
+      linkLabelGroup.attr(
+        "transform",
+        (d) => `translate(${(d.source.x + d.target.x) / 2}, ${(d.source.y + d.target.y) / 2})`
+      );
+
       node.attr("transform", (d) => `translate(${d.x},${d.y})`);
     });
 
@@ -189,7 +234,17 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
           zIndex: 10,
         }}
       >
-        <div style={{ fontFamily: fontMono, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: T.inkDim, marginBottom: 8 }}>
+        <div
+          style={{
+            fontFamily: fontMono,
+            fontSize: 10,
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            color: T.inkDim,
+            marginBottom: 8,
+          }}
+        >
           Node Categories
         </div>
         <Legend color={CategoryColors.organization.main} label="Organization" />
@@ -218,5 +273,6 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
     </div>
   );
 }
+
 
 
