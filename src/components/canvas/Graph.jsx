@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { fontMono, fontSans, T, CategoryColors } from "../../constants/theme";
 import Legend from "../ui/Legend";
@@ -7,8 +7,10 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
   void sources;
   const svgRef = useRef(null);
   const wrapRef = useRef(null);
+  const zoomRef = useRef({ zoomIn: () => {}, zoomOut: () => {}, resetZoom: () => {} });
 
   useEffect(() => {
+
     const svgEl = svgRef.current;
     const wrap = wrapRef.current;
     const width = wrap.clientWidth || 800;
@@ -35,12 +37,18 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
     }
 
     const g = svg.append("g");
-    svg.call(
-      d3
-        .zoom()
-        .scaleExtent([0.3, 3])
-        .on("zoom", (ev) => g.attr("transform", ev.transform))
-    );
+    const zoomBehavior = d3
+      .zoom()
+      .scaleExtent([0.3, 3])
+      .on("zoom", (ev) => g.attr("transform", ev.transform));
+
+    svg.call(zoomBehavior);
+
+    zoomRef.current = {
+      zoomIn: () => svg.transition().duration(250).call(zoomBehavior.scaleBy, 1.25),
+      zoomOut: () => svg.transition().duration(250).call(zoomBehavior.scaleBy, 0.8),
+      resetZoom: () => svg.transition().duration(350).call(zoomBehavior.transform, d3.zoomIdentity),
+    };
 
     const getColor = (t) => {
       if (t === "person") return CategoryColors.person.main;
@@ -171,7 +179,6 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
       .attr("fill", (d) => getColor(d.type)) // Sharp solid category color initials
       .text((d) => (d.name || "?").slice(0, 2).toUpperCase());
 
-
     // External Entity Text Labels (13px IBM Plex Sans semi-bold with #FAF7F2 text halo)
     node
       .append("text")
@@ -218,6 +225,7 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
 
   return (
     <div ref={wrapRef} style={{ position: "relative", width: "100%", height: "100%" }}>
+      {/* Floating Legend Overlay */}
       <div
         style={{
           position: "absolute",
@@ -225,12 +233,12 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
           right: 20,
           fontFamily: fontMono,
           fontSize: 11,
-          color: T.ink,
-          background: T.panel,
-          border: `1px solid ${T.line}`,
-          padding: "10px 14px",
-          borderRadius: 4,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          color: "#1E1E1E",
+          background: "#FFFBF7",
+          border: "1px solid #E4DDD3",
+          padding: "12px 16px",
+          borderRadius: 8,
+          boxShadow: "0 4px 12px rgba(30, 30, 30, 0.05)",
           zIndex: 10,
         }}
       >
@@ -241,8 +249,8 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
             fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: "0.08em",
-            color: T.inkDim,
-            marginBottom: 8,
+            color: "#7A746E",
+            marginBottom: 10,
           }}
         >
           Node Categories
@@ -251,7 +259,10 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
         <Legend color={CategoryColors.person.main} label="Person" />
         <Legend color={CategoryColors.other.main} label="Other" />
       </div>
+
       <svg ref={svgRef} style={{ width: "100%", height: "100%", display: "block", cursor: "grab" }} />
+
+      {/* Bottom Helper Bar */}
       <div
         style={{
           position: "absolute",
@@ -260,19 +271,84 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
           fontFamily: fontMono,
           fontSize: 11,
           letterSpacing: "0.02em",
-          color: T.inkDim,
+          color: "#7A746E",
           fontWeight: 500,
-          background: "rgba(255, 255, 255, 0.85)",
-          padding: "5px 10px",
-          borderRadius: 4,
-          border: `1px solid ${T.line}`,
+          background: "rgba(250, 247, 242, 0.85)",
+          backdropFilter: "blur(4px)",
+          WebkitBackdropFilter: "blur(4px)",
+          padding: "6px 12px",
+          borderRadius: 6,
+          border: "1px solid #E4DDD3",
+          zIndex: 10,
+          boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
         }}
       >
         Drag nodes to arrange · click a node to inspect
       </div>
+
+      {/* Floating Canvas Zoom & View Controls */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 16,
+          right: 20,
+          display: "flex",
+          alignItems: "center",
+          gap: 3,
+          background: "rgba(250, 247, 242, 0.85)",
+          backdropFilter: "blur(4px)",
+          WebkitBackdropFilter: "blur(4px)",
+          padding: "4px",
+          borderRadius: 6,
+          border: "1px solid #E4DDD3",
+          zIndex: 10,
+          boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
+        }}
+      >
+        <ZoomBtn onClick={() => zoomRef.current.zoomIn()} title="Zoom In">
+          +
+        </ZoomBtn>
+        <ZoomBtn onClick={() => zoomRef.current.zoomOut()} title="Zoom Out">
+          −
+        </ZoomBtn>
+        <ZoomBtn onClick={() => zoomRef.current.resetZoom()} title="Center View">
+          ⤢
+        </ZoomBtn>
+      </div>
     </div>
   );
 }
+
+function ZoomBtn({ children, onClick, title }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        fontFamily: fontMono,
+        fontSize: 13,
+        fontWeight: 600,
+        color: "#1E1E1E",
+        background: hovered ? "#EFE9DF" : "transparent",
+        border: "1px solid transparent",
+        borderRadius: 4,
+        width: 28,
+        height: 28,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        transition: "all 0.15s ease",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
 
 
 

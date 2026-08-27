@@ -251,24 +251,7 @@ export default function DossierFlow() {
               </div>
             );
           })}
-          <button
-            onClick={() => setModal({ type: "case" })}
-            style={{
-              marginTop: 8,
-              padding: "9px 10px",
-              border: `1px dashed ${T.line}`,
-              borderRadius: 4,
-              color: T.ink,
-              fontFamily: fontSans,
-              fontWeight: 600,
-              fontSize: 11.5,
-              textAlign: "center",
-              cursor: "pointer",
-              background: "transparent",
-            }}
-          >
-            + New case
-          </button>
+          <SidebarNewCaseBtn onClick={() => setModal({ type: "case" })} />
         </div>
 
         {/* Main Content */}
@@ -310,32 +293,18 @@ export default function DossierFlow() {
               {/* Navigation Tabs */}
               <div
                 className="dossierflow-tabs"
-                style={{ display: "flex", gap: 4, padding: "12px 24px 0", borderBottom: `1px solid ${T.line}` }}
+                style={{ display: "flex", gap: 4, padding: "12px 24px 0", borderBottom: "1px solid #E4DDD3" }}
               >
-                {tabs.map((t) => {
-                  const active = activeTab === t.key;
-                  return (
-                    <div
-                      key={t.key}
-                      onClick={() => setActiveTab(t.key)}
-                      style={{
-                        fontFamily: fontSans,
-                        fontSize: 11,
-                        fontWeight: active ? 600 : 500,
-                        letterSpacing: "0.04em",
-                        textTransform: "uppercase",
-                        color: active ? T.ink : T.inkDim,
-                        padding: "10px 16px",
-                        cursor: "pointer",
-                        borderBottom: `2.5px solid ${active ? T.ink : "transparent"}`,
-                        transition: "color 0.15s ease",
-                      }}
-                    >
-                      {t.label}
-                    </div>
-                  );
-                })}
+                {tabs.map((t) => (
+                  <TabItem
+                    key={t.key}
+                    active={activeTab === t.key}
+                    label={t.label}
+                    onClick={() => setActiveTab(t.key)}
+                  />
+                ))}
               </div>
+
 
 
               {/* View Viewport */}
@@ -485,4 +454,63 @@ function TimelineView({ items, onAdd }) {
     </div>
   );
 }
+
+function TabItem({ active, label, onClick }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        fontFamily: fontMono,
+        fontSize: 12,
+        fontWeight: active ? 600 : 500,
+        letterSpacing: "0.06em",
+        textTransform: "uppercase",
+        color: active ? "#1E1E1E" : hovered ? "#1E1E1E" : "#7A746E",
+        padding: "10px 16px",
+        cursor: "pointer",
+        borderBottom: `2px solid ${active ? "#1E1E1E" : "transparent"}`,
+        transition: "all 0.15s ease",
+        userSelect: "none",
+      }}
+    >
+      {label}
+    </div>
+  );
+}
+
+function SidebarNewCaseBtn({ onClick }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        marginTop: 10,
+        padding: "9px 12px",
+        border: "1px solid #D5CCC0",
+        borderRadius: 6,
+        color: "#1E1E1E",
+        fontFamily: fontSans,
+        fontWeight: 600,
+        fontSize: 12,
+        textAlign: "center",
+        cursor: "pointer",
+        background: hovered ? "#EFE9DF" : "#FAF7F2",
+        transition: "all 0.15s ease",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 6,
+        userSelect: "none",
+      }}
+    >
+      + New case
+    </button>
+  );
+}
+
 
