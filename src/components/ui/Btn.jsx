@@ -1,10 +1,11 @@
-import { fontMono, T } from "../../constants/theme";
+import { fontSans, T } from "../../constants/theme";
 
 export default function Btn({ children, onClick, variant = "primary", style }) {
   const base = {
-    fontFamily: fontMono,
+    fontFamily: fontSans,
     fontSize: 11,
-    letterSpacing: 0.4,
+    letterSpacing: "0.04em",
+
     border: "none",
     padding: "8px 14px",
     borderRadius: 3,

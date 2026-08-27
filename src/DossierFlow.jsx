@@ -152,9 +152,9 @@ export default function DossierFlow() {
             >
               <img src={logoSrc} alt="DossierFlow logo" style={{ width: "72%", height: "72%", objectFit: "contain" }} />
             </div>
-            <h1 style={{ fontFamily: fontDisplay, fontSize: 16, letterSpacing: 0.8, color: T.ink, margin: 0 }}>DOSSIERFLOW</h1>
-            <span style={{ fontFamily: fontMono, fontSize: 10, fontWeight: 600, color: T.inkDim, letterSpacing: 1, textTransform: "uppercase", marginLeft: 6 }}>
-              OSINT Workspace
+            <h1 style={{ fontFamily: fontSans, fontSize: 16, fontWeight: 700, letterSpacing: "0.04em", color: T.ink, margin: 0 }}>DOSSIERFLOW</h1>
+            <span style={{ fontFamily: fontMono, fontSize: 10, fontWeight: 600, color: T.inkDim, letterSpacing: "0.08em", textTransform: "uppercase", marginLeft: 6 }}>
+              OSINT WORKSPACE
             </span>
           </div>
           <div style={{ flex: 1, maxWidth: 420, margin: "0 24px" }}>
@@ -167,13 +167,24 @@ export default function DossierFlow() {
                 color: T.ink,
                 padding: "8px 12px",
                 borderRadius: 4,
-                fontFamily: fontMono,
-                fontSize: 12,
+                fontFamily: fontSans,
+                fontSize: 12.5,
                 outline: "none",
               }}
             />
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16, fontFamily: fontMono, fontSize: 11, fontWeight: 600, color: T.inkDim }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              fontFamily: fontMono,
+              fontSize: 11,
+              fontWeight: 500,
+              fontFeatureSettings: '"tnum" 1',
+              color: T.inkDim,
+            }}
+          >
             <span>
               <span
                 style={{
@@ -203,7 +214,17 @@ export default function DossierFlow() {
             flexDirection: "column",
           }}
         >
-          <div style={{ fontFamily: fontMono, fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", color: T.inkDim, padding: "0 6px 10px" }}>
+          <div
+            style={{
+              fontFamily: fontMono,
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: T.inkDim,
+              padding: "0 6px 10px",
+            }}
+          >
             Cases
           </div>
           {db.cases.map((c) => {
@@ -223,8 +244,8 @@ export default function DossierFlow() {
                   transition: "all 0.15s ease",
                 }}
               >
-                <div style={{ fontSize: 13, fontWeight: active ? 700 : 600, color: T.ink }}>{c.name}</div>
-                <div style={{ fontFamily: fontMono, fontSize: 10, fontWeight: 500, color: T.inkDim, marginTop: 4 }}>
+                <div style={{ fontFamily: fontSans, fontSize: 13, fontWeight: active ? 600 : 500, color: T.ink }}>{c.name}</div>
+                <div style={{ fontFamily: fontMono, fontSize: 10, fontWeight: 500, fontFeatureSettings: '"tnum" 1', color: T.inkDim, marginTop: 4 }}>
                   {entCount} entities · {new Date(c.created).toLocaleDateString()}
                 </div>
               </div>
@@ -238,9 +259,9 @@ export default function DossierFlow() {
               border: `1px dashed ${T.line}`,
               borderRadius: 4,
               color: T.ink,
-              fontFamily: fontMono,
+              fontFamily: fontSans,
               fontWeight: 600,
-              fontSize: 11,
+              fontSize: 11.5,
               textAlign: "center",
               cursor: "pointer",
               background: "transparent",
@@ -258,10 +279,10 @@ export default function DossierFlow() {
             <>
               {/* Header section */}
               <div style={{ padding: "20px 24px 0" }}>
-                <h2 style={{ fontFamily: fontDisplay, fontSize: 22, color: T.ink, margin: 0, letterSpacing: "-0.2px" }}>
+                <h2 style={{ fontFamily: fontSans, fontSize: 22, fontWeight: 600, color: T.ink, margin: 0, letterSpacing: "-0.01em" }}>
                   {currentCase.name}
                 </h2>
-                <p style={{ color: T.inkDim, fontSize: 13.5, lineHeight: 1.5, marginTop: 6, maxWidth: 680, fontWeight: 400 }}>
+                <p style={{ fontFamily: fontSans, color: T.inkDim, fontSize: 13.5, lineHeight: 1.5, marginTop: 6, maxWidth: 680, fontWeight: 400 }}>
                   {currentCase.description}
                 </p>
                 <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
@@ -271,7 +292,8 @@ export default function DossierFlow() {
                       style={{
                         fontFamily: fontMono,
                         fontSize: 11,
-                        fontWeight: 600,
+                        fontWeight: 500,
+                        fontFeatureSettings: '"tnum" 1',
                         padding: "4px 10px",
                         borderRadius: 3,
                         background: T.panel2,
@@ -297,10 +319,10 @@ export default function DossierFlow() {
                       key={t.key}
                       onClick={() => setActiveTab(t.key)}
                       style={{
-                        fontFamily: fontMono,
+                        fontFamily: fontSans,
                         fontSize: 11,
-                        fontWeight: active ? 700 : 600,
-                        letterSpacing: 0.6,
+                        fontWeight: active ? 600 : 500,
+                        letterSpacing: "0.04em",
                         textTransform: "uppercase",
                         color: active ? T.ink : T.inkDim,
                         padding: "10px 16px",
@@ -314,6 +336,7 @@ export default function DossierFlow() {
                   );
                 })}
               </div>
+
 
               {/* View Viewport */}
               <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>

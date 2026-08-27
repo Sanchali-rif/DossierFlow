@@ -38,7 +38,8 @@ export const CategoryColors = {
   },
 };
 
+export const fontSans = "'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif";
 export const fontMono = "'IBM Plex Mono', monospace";
-export const fontSans = "'IBM Plex Sans', sans-serif";
-export const fontDisplay = "'Archivo Black', sans-serif";
+export const fontDisplay = "'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif";
+
 

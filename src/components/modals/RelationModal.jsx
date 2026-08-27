@@ -1,3 +1,94 @@
 import { useState } from "react";
-import Modal from "./Modal"; import Btn from "../ui/Btn"; import { Field, inputStyle } from "../ui/Field"; import { fontDisplay, fontMono, T } from "../../constants/theme";
-export default function RelationModal({ onClose, onSubmit, entities, sources }) { const [from, setFrom] = useState(entities[0]?.id || ""); const [to, setTo] = useState(entities[1]?.id || ""); const [label, setLabel] = useState(""); const [sourceId, setSourceId] = useState(""); const [error, setError] = useState(false); if (entities.length < 2) return <Modal onClose={onClose}><h3 style={{ fontFamily: fontDisplay, fontSize: 15, marginBottom: 16 }}>New relationship</h3><p style={{ fontSize: 13, color: T.inkDim, marginBottom: 16 }}>Add at least two entities first.</p><div style={{ display: "flex", justifyContent: "flex-end" }}><Btn variant="secondary" onClick={onClose}>Close</Btn></div></Modal>; const submit = () => { if (from === to) { setError(true); return; } onSubmit(from, to, label.trim() || "related to", sourceId); }; return <Modal onClose={onClose}><h3 style={{ fontFamily: fontDisplay, fontSize: 15, marginBottom: 16 }}>New relationship</h3><Field label="From"><select style={inputStyle} value={from} onChange={(e) => setFrom(e.target.value)}>{entities.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}</select></Field><Field label="Relationship"><input style={inputStyle} value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Director of, Owns, Communicated with" /></Field><Field label="To"><select style={inputStyle} value={to} onChange={(e) => setTo(e.target.value)}>{entities.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}</select></Field><Field label="Supporting source"><select style={inputStyle} value={sourceId} onChange={(e) => setSourceId(e.target.value)}><option value="">— none —</option>{sources.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}</select></Field>{error && <div style={{ color: T.danger, fontSize: 12, marginBottom: 10, fontFamily: fontMono }}>&quot;From&quot; and &quot;To&quot; must be different entities.</div>}<div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}><Btn variant="secondary" onClick={onClose}>Cancel</Btn><Btn onClick={submit}>Add relationship</Btn></div></Modal>; }
+import Modal from "./Modal";
+import Btn from "../ui/Btn";
+import { Field, inputStyle } from "../ui/Field";
+import { fontSans, fontMono, T } from "../../constants/theme";
+
+export default function RelationModal({ onClose, onSubmit, entities, sources }) {
+  const [from, setFrom] = useState(entities[0]?.id || "");
+  const [to, setTo] = useState(entities[1]?.id || "");
+  const [label, setLabel] = useState("");
+  const [sourceId, setSourceId] = useState("");
+  const [error, setError] = useState(false);
+
+  if (entities.length < 2)
+    return (
+      <Modal onClose={onClose}>
+        <h3 style={{ fontFamily: fontSans, fontSize: 16, fontWeight: 600, color: T.ink, marginBottom: 16 }}>
+          New Relationship
+        </h3>
+        <p style={{ fontFamily: fontSans, fontSize: 13, color: T.inkDim, marginBottom: 16 }}>
+          Add at least two entities first.
+        </p>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <Btn variant="secondary" onClick={onClose}>
+            Close
+          </Btn>
+        </div>
+      </Modal>
+    );
+
+  const submit = () => {
+    if (from === to) {
+      setError(true);
+      return;
+    }
+    onSubmit(from, to, label.trim() || "related to", sourceId);
+  };
+
+  return (
+    <Modal onClose={onClose}>
+      <h3 style={{ fontFamily: fontSans, fontSize: 16, fontWeight: 600, color: T.ink, marginBottom: 16 }}>
+        New Relationship
+      </h3>
+      <Field label="From">
+        <select style={inputStyle} value={from} onChange={(e) => setFrom(e.target.value)}>
+          {entities.map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.name}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field label="Relationship">
+        <input
+          style={inputStyle}
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          placeholder="e.g. Director of, Owns, Shares agent with"
+        />
+      </Field>
+      <Field label="To">
+        <select style={inputStyle} value={to} onChange={(e) => setTo(e.target.value)}>
+          {entities.map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.name}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field label="Supporting Source">
+        <select style={inputStyle} value={sourceId} onChange={(e) => setSourceId(e.target.value)}>
+          <option value="">— None —</option>
+          {sources.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.title}
+            </option>
+          ))}
+        </select>
+      </Field>
+      {error && (
+        <div style={{ color: T.danger, fontSize: 12, marginBottom: 10, fontFamily: fontMono }}>
+          &quot;From&quot; and &quot;To&quot; must be different entities.
+        </div>
+      )}
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 18 }}>
+        <Btn variant="secondary" onClick={onClose}>
+          Cancel
+        </Btn>
+        <Btn onClick={submit}>Add relationship</Btn>
+      </div>
+    </Modal>
+  );
+}
+

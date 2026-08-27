@@ -79,7 +79,9 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
       .join("text")
       .attr("font-family", fontMono)
       .attr("font-size", "10px")
-      .attr("font-weight", "600")
+      .attr("font-weight", "500")
+      .attr("letter-spacing", "0.04em")
+      .style("font-feature-settings", '"tnum" 1')
       .attr("fill", T.inkDim)
       .attr("paint-order", "stroke")
       .attr("stroke", T.bg)
@@ -125,7 +127,8 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
       .attr("dy", 4)
       .attr("font-family", fontMono)
       .attr("font-size", "11px")
-      .attr("font-weight", "700")
+      .attr("font-weight", "600")
+      .attr("letter-spacing", "0.04em")
       .attr("fill", (d) => getColor(d.type))
       .text((d) => (d.name || "?").slice(0, 2).toUpperCase());
 
@@ -186,7 +189,7 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
           zIndex: 10,
         }}
       >
-        <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: T.inkDim, marginBottom: 8 }}>
+        <div style={{ fontFamily: fontMono, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: T.inkDim, marginBottom: 8 }}>
           Node Categories
         </div>
         <Legend color={CategoryColors.organization.main} label="Organization" />
@@ -201,11 +204,12 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
           left: 20,
           fontFamily: fontMono,
           fontSize: 11,
+          letterSpacing: "0.02em",
           color: T.inkDim,
           fontWeight: 500,
-          background: "rgba(255, 255, 255, 0.75)",
-          padding: "4px 8px",
-          borderRadius: 3,
+          background: "rgba(255, 255, 255, 0.85)",
+          padding: "5px 10px",
+          borderRadius: 4,
           border: `1px solid ${T.line}`,
         }}
       >
@@ -214,4 +218,5 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
     </div>
   );
 }
+
 
