@@ -64,12 +64,12 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
         d3
           .forceLink(links)
           .id((d) => d.id)
-          .distance(200) // Increased base link distance (180px - 220px)
+          .distance(240) // Expanded base link distance for bigger canvas
           .strength(0.6)
       )
-      .force("charge", d3.forceManyBody().strength(-500)) // Repulsion -500 for breathing room
+      .force("charge", d3.forceManyBody().strength(-650)) // Repulsion -650 for larger breathing room
       .force("center", d3.forceCenter(width / 2, height / 2))
-      .force("collide", d3.forceCollide(50)); // 50px collide buffer
+      .force("collide", d3.forceCollide(60)); // 60px collide buffer
 
     // Edge lines
     const link = g
@@ -155,13 +155,13 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
     // Base Circle (layering #FAF7F2 to block obtrusive background grid bleed-through)
     node
       .append("circle")
-      .attr("r", 24)
+      .attr("r", 26)
       .attr("fill", T.bg);
 
     // Tinted Circle with solid category border
     node
       .append("circle")
-      .attr("r", 24)
+      .attr("r", 26)
       .attr("fill", (d) => getColor(d.type))
       .attr("fill-opacity", 0.18) // Soft semi-translucent category tint
       .attr("stroke", (d) => getColor(d.type)) // Crisp solid category border
@@ -183,7 +183,7 @@ export default function Graph({ entities, relations, sources, onSelectEntity }) 
     node
       .append("text")
       .attr("text-anchor", "middle")
-      .attr("dy", 40) // Offset 10px below the 24px circle
+      .attr("dy", 42) // Offset below the 26px circle
       .attr("font-family", fontSans)
       .attr("font-size", "13px")
       .attr("font-weight", "600")

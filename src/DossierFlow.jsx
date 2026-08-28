@@ -115,8 +115,8 @@ export default function DossierFlow() {
         className="dossierflow-layout"
         style={{
           display: "grid",
-          gridTemplateColumns: "250px 1fr",
-          gridTemplateRows: "56px 1fr",
+          gridTemplateColumns: "210px 1fr",
+          gridTemplateRows: "46px 1fr",
           height: "100vh",
           position: "relative",
           zIndex: 1,
@@ -130,7 +130,7 @@ export default function DossierFlow() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "0 20px",
+            padding: "0 16px",
             borderBottom: `1px solid ${T.line}`,
             background: T.panel,
           }}
@@ -261,39 +261,43 @@ export default function DossierFlow() {
           ) : (
             <>
               {/* Header section */}
-              <div style={{ padding: "20px 24px 0" }}>
-                <h2 style={{ fontFamily: fontSans, fontSize: 22, fontWeight: 600, color: T.ink, margin: 0, letterSpacing: "-0.01em" }}>
-                  {currentCase.name}
-                </h2>
-                <p style={{ fontFamily: fontSans, color: T.inkDim, fontSize: 13.5, lineHeight: 1.5, marginTop: 6, maxWidth: 680, fontWeight: 400 }}>
-                  {currentCase.description}
-                </p>
-                <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                  {[`${ents.length} entities`, `${srcs.length} sources`, `${rels.length} links`].map((b) => (
-                    <span
-                      key={b}
-                      style={{
-                        fontFamily: fontMono,
-                        fontSize: 11,
-                        fontWeight: 500,
-                        fontFeatureSettings: '"tnum" 1',
-                        padding: "4px 10px",
-                        borderRadius: 3,
-                        background: T.panel2,
-                        color: T.ink,
-                        border: `1px solid ${T.line}`,
-                      }}
-                    >
-                      {b}
-                    </span>
-                  ))}
+              <div style={{ padding: "12px 18px 0" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+                  <div>
+                    <h2 style={{ fontFamily: fontSans, fontSize: 17, fontWeight: 700, color: T.ink, margin: 0, letterSpacing: "-0.01em" }}>
+                      {currentCase.name}
+                    </h2>
+                    <p style={{ fontFamily: fontSans, color: T.inkDim, fontSize: 12.5, lineHeight: 1.4, marginTop: 2, maxWidth: 680, fontWeight: 400 }}>
+                      {currentCase.description}
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {[`${ents.length} entities`, `${srcs.length} sources`, `${rels.length} links`].map((b) => (
+                      <span
+                        key={b}
+                        style={{
+                          fontFamily: fontMono,
+                          fontSize: 10,
+                          fontWeight: 500,
+                          fontFeatureSettings: '"tnum" 1',
+                          padding: "2px 8px",
+                          borderRadius: 3,
+                          background: T.panel2,
+                          color: T.ink,
+                          border: `1px solid ${T.line}`,
+                        }}
+                      >
+                        {b}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* Navigation Tabs */}
               <div
                 className="dossierflow-tabs"
-                style={{ display: "flex", gap: 4, padding: "12px 24px 0", borderBottom: "1px solid #E4DDD3" }}
+                style={{ display: "flex", gap: 4, padding: "8px 18px 0", borderBottom: "1px solid #E4DDD3" }}
               >
                 {tabs.map((t) => (
                   <TabItem
