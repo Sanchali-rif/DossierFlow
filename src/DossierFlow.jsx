@@ -14,6 +14,8 @@ import SourceModal from "./components/modals/SourceModal";
 import NoteModal from "./components/modals/NoteModal";
 import TimelineModal from "./components/modals/TimelineModal";
 import EntityDetailModal from "./components/modals/EntityDetailModal";
+import AIChat from "./components/AIChat";
+import { buildAIContext } from "./utils/AIContext";
 
 export default function DossierFlow() {
   const [db, setDb] = useState(seedData);
@@ -96,6 +98,7 @@ export default function DossierFlow() {
     notesL = scoped(db.notes);
   const tlL = [...scoped(db.timeline)].sort((a, b) => a.date.localeCompare(b.date));
   const histL = [...scoped(db.history)].sort((a, b) => b.ts - a.ts);
+  const aiContext = buildAIContext(db);
 
   const tabs = [
     { key: "graph", label: "Graph" },
@@ -115,7 +118,7 @@ export default function DossierFlow() {
         className="dossierflow-layout"
         style={{
           display: "grid",
-          gridTemplateColumns: "210px 1fr",
+          gridTemplateColumns: "210px 1fr 360px",
           gridTemplateRows: "46px 1fr",
           height: "100vh",
           position: "relative",
@@ -126,7 +129,7 @@ export default function DossierFlow() {
         <div
           className="dossierflow-topbar"
           style={{
-            gridColumn: "1 / 3",
+            gridColumn: "1 / 4",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -385,6 +388,11 @@ export default function DossierFlow() {
               </div>
             </>
           )}
+        </div>
+
+        {/* AI Assistant */}
+        <div style={{ gridColumn: "3 / 4", height: "100%", borderLeft: `1px solid ${T.line}`, padding: 24 }}>
+          <AIChat context={aiContext} />
         </div>
       </div>
 
