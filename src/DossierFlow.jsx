@@ -391,9 +391,17 @@ export default function DossierFlow() {
         </div>
 
         {/* AI Assistant */}
-        <div style={{ gridColumn: "3 / 4", height: "100%", borderLeft: `1px solid ${T.line}`, padding: 24 }}>
+        
+        <div
+          style={{
+            gridColumn: "3 / 4",
+            height: "100%",
+            borderLeft: `1px solid ${T.line}`,
+            padding: 24,
+          }}
+>
           <AIChat context={aiContext} />
-        </div>
+       </div>
       </div>
 
       {/* Modals */}
