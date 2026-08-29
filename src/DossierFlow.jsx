@@ -1,7 +1,8 @@
 import { useState, useCallback } from "react";
+import { usePersistedDb } from "./utils/usePersistedDb";
 import logoSrc from "./assets/logo.svg";
 import { fontDisplay, fontMono, fontSans, T, CategoryColors } from "./constants/theme";
-import { now, seedData, uid } from "./constants/seedData";
+import { now, uid } from "./constants/seedData";
 import BackgroundCanvas from "./components/canvas/BackgroundCanvas";
 import Graph from "./components/canvas/Graph";
 import Btn from "./components/ui/Btn";
@@ -18,7 +19,7 @@ import AIChat from "./components/AIChat";
 import { buildAIContext } from "./utils/AIContext";
 
 export default function DossierFlow() {
-  const [db, setDb] = useState(seedData);
+  const [db, setDb] = usePersistedDb();
   const [activeTab, setActiveTab] = useState("graph");
   const [modal, setModal] = useState(null);
   const [detailEntity, setDetailEntity] = useState(null);
@@ -199,9 +200,33 @@ export default function DossierFlow() {
                   marginRight: 6,
                 }}
               />
-              Local session
+              Saved locally
             </span>
             <span>v{histL.length || 1}</span>
+            <button
+              title="Clear all saved data and reset to demo"
+              onClick={() => {
+                if (window.confirm("Reset workspace? This will erase all saved cases.")) {
+                  localStorage.removeItem("dossierflow_db");
+                  window.location.reload();
+                }
+              }}
+              style={{
+                fontFamily: "inherit",
+                fontSize: 10,
+                fontWeight: 600,
+                color: T.inkDim,
+                background: "transparent",
+                border: `1px solid ${T.line}`,
+                borderRadius: 3,
+                padding: "2px 8px",
+                cursor: "pointer",
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+              }}
+            >
+              Reset
+            </button>
           </div>
         </div>
 
