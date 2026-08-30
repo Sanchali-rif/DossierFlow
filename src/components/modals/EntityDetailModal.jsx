@@ -3,7 +3,7 @@ import Btn from "../ui/Btn";
 import { Field } from "../ui/Field";
 import { fontDisplay, fontMono, T, CategoryColors } from "../../constants/theme";
 
-export default function EntityDetailModal({ entity, relations, entities, sources, onClose }) {
+export default function EntityDetailModal({ entity, relations, entities, sources, onClose, onDelete }) {
   const rels = relations.filter((r) => r.from === entity.id || r.to === entity.id);
   const cat = CategoryColors[entity.type] || CategoryColors.other;
 
@@ -51,7 +51,25 @@ export default function EntityDetailModal({ entity, relations, entities, sources
           })
         )}
       </Field>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 18 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 18 }}>
+        {onDelete ? (
+          <button
+            onClick={() => { onDelete(entity.id); onClose(); }}
+            style={{
+              background: "transparent",
+              border: "1px solid #C0392B",
+              color: "#C0392B",
+              borderRadius: 3,
+              padding: "6px 12px",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              letterSpacing: "0.04em",
+            }}
+          >
+            Delete entity
+          </button>
+        ) : <span />}
         <Btn variant="secondary" onClick={onClose}>
           Close
         </Btn>

@@ -93,6 +93,29 @@ export default function DossierFlow() {
     setModal(null);
   };
 
+  const deleteCase = (id) => {
+    update((d) => {
+      d.cases = d.cases.filter((c) => c.id !== id);
+      d.entities = d.entities.filter((e) => e.caseId !== id);
+      d.relations = d.relations.filter((r) => r.caseId !== id);
+      d.sources = d.sources.filter((s) => s.caseId !== id);
+      d.notes = d.notes.filter((n) => n.caseId !== id);
+      d.timeline = d.timeline.filter((t) => t.caseId !== id);
+      d.history = d.history.filter((h) => h.caseId !== id);
+      if (d.activeCaseId === id) d.activeCaseId = d.cases[0]?.id ?? null;
+    });
+  };
+  const deleteEntity = (id) => {
+    update((d) => {
+      d.entities = d.entities.filter((e) => e.id !== id);
+      d.relations = d.relations.filter((r) => r.from !== id && r.to !== id);
+      logHistory(d, "Deleted entity");
+    });
+  };
+  const deleteSource = (id) => update((d) => { d.sources = d.sources.filter((s) => s.id !== id); logHistory(d, "Deleted source"); });
+  const deleteNote = (id) => update((d) => { d.notes = d.notes.filter((n) => n.id !== id); logHistory(d, "Deleted note"); });
+  const deleteTimeline = (id) => update((d) => { d.timeline = d.timeline.filter((t) => t.id !== id); logHistory(d, "Deleted timeline event"); });
+
   const ents = scoped(db.entities),
     srcs = scoped(db.sources),
     rels = scoped(db.relations),
@@ -259,24 +282,14 @@ export default function DossierFlow() {
             const entCount = db.entities.filter((e) => e.caseId === c.id).length;
             const active = c.id === db.activeCaseId;
             return (
-              <div
+              <SidebarCaseItem
                 key={c.id}
-                onClick={() => selectCase(c.id)}
-                style={{
-                  padding: "10px 12px",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                  marginBottom: 6,
-                  border: `1px solid ${active ? T.ink : "transparent"}`,
-                  background: active ? T.panel2 : "transparent",
-                  transition: "all 0.15s ease",
-                }}
-              >
-                <div style={{ fontFamily: fontSans, fontSize: 13, fontWeight: active ? 600 : 500, color: T.ink }}>{c.name}</div>
-                <div style={{ fontFamily: fontMono, fontSize: 10, fontWeight: 500, fontFeatureSettings: '"tnum" 1', color: T.inkDim, marginTop: 4 }}>
-                  {entCount} entities · {new Date(c.created).toLocaleDateString()}
-                </div>
-              </div>
+                c={c}
+                active={active}
+                entCount={entCount}
+                onSelect={() => selectCase(c.id)}
+                onDelete={() => deleteCase(c.id)}
+              />
             );
           })}
           <SidebarNewCaseBtn onClick={() => setModal({ type: "case" })} />
@@ -358,6 +371,7 @@ export default function DossierFlow() {
                     empty="No sources logged yet."
                     button="+ Add source"
                     onAdd={() => setModal({ type: "source" })}
+                    onDelete={deleteSource}
                     render={(s) => (
                       <>
                         <h3 style={{ fontSize: 14, fontWeight: 700, color: T.ink, margin: 0 }}>{s.title}</h3>
@@ -385,6 +399,7 @@ export default function DossierFlow() {
                     empty="No notes yet."
                     button="+ Add note"
                     onAdd={() => setModal({ type: "note" })}
+                    onDelete={deleteNote}
                     render={(n) => (
                       <>
                         <div style={{ fontFamily: fontMono, fontSize: 10, fontWeight: 600, color: T.inkDim }}>
@@ -395,7 +410,7 @@ export default function DossierFlow() {
                     )}
                   />
                 )}
-                {activeTab === "timeline" && <TimelineView items={tlL} onAdd={() => setModal({ type: "timeline" })} />}
+                {activeTab === "timeline" && <TimelineView items={tlL} onAdd={() => setModal({ type: "timeline" })} onDelete={deleteTimeline} />}
                 {activeTab === "history" && (
                   <ListView
                     items={histL}
@@ -445,13 +460,14 @@ export default function DossierFlow() {
           entities={ents}
           sources={srcs}
           onClose={() => setDetailEntity(null)}
+          onDelete={deleteEntity}
         />
       )}
     </div>
   );
 }
 
-function ListView({ items, empty, button, onAdd, render }) {
+function ListView({ items, empty, button, onAdd, onDelete, render }) {
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: 24 }}>
       {button && (
@@ -459,12 +475,19 @@ function ListView({ items, empty, button, onAdd, render }) {
           <Btn onClick={onAdd}>{button}</Btn>
         </div>
       )}
-      {items.length === 0 ? <Empty text={empty} /> : items.map((item) => <Card key={item.id}>{render(item)}</Card>)}
+      {items.length === 0
+        ? <Empty text={empty} />
+        : items.map((item) => (
+            <Card key={item.id} onDelete={onDelete ? () => onDelete(item.id) : undefined}>
+              {render(item)}
+            </Card>
+          ))
+      }
     </div>
   );
 }
 
-function TimelineView({ items, onAdd }) {
+function TimelineView({ items, onAdd, onDelete }) {
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: 24 }}>
       <div style={{ marginBottom: 18 }}>
@@ -476,25 +499,59 @@ function TimelineView({ items, onAdd }) {
         <div style={{ position: "relative", paddingLeft: 20 }}>
           <div style={{ position: "absolute", left: 5, top: 4, bottom: 4, width: 2, background: T.line }} />
           {items.map((t) => (
-            <div key={t.id} style={{ position: "relative", paddingBottom: 22, paddingLeft: 18 }}>
-              <div
-                style={{
-                  position: "absolute",
-                  left: -17,
-                  top: 4,
-                  width: 10,
-                  height: 10,
-                  borderRadius: "50%",
-                  background: CategoryColors.person.main,
-                  border: `2px solid ${T.bg}`,
-                }}
-              />
-              <div style={{ fontFamily: fontMono, fontSize: 11, fontWeight: 700, color: CategoryColors.person.main }}>{t.date}</div>
-              <h4 style={{ fontSize: 14, fontWeight: 700, color: T.ink, margin: "4px 0 2px" }}>{t.title}</h4>
-              <p style={{ fontSize: 13, color: T.inkDim, lineHeight: 1.4 }}>{t.detail}</p>
-            </div>
+            <TimelineItem key={t.id} t={t} onDelete={onDelete} />
           ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+function TimelineItem({ t, onDelete }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      key={t.id}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ position: "relative", paddingBottom: 22, paddingLeft: 18 }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          left: -17,
+          top: 4,
+          width: 10,
+          height: 10,
+          borderRadius: "50%",
+          background: CategoryColors.person.main,
+          border: `2px solid ${T.bg}`,
+        }}
+      />
+      <div style={{ fontFamily: fontMono, fontSize: 11, fontWeight: 700, color: CategoryColors.person.main }}>{t.date}</div>
+      <h4 style={{ fontSize: 14, fontWeight: 700, color: T.ink, margin: "4px 0 2px" }}>{t.title}</h4>
+      <p style={{ fontSize: 13, color: T.inkDim, lineHeight: 1.4 }}>{t.detail}</p>
+      {onDelete && (
+        <button
+          onClick={() => onDelete(t.id)}
+          title="Delete event"
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            opacity: hovered ? 1 : 0,
+            transition: "opacity 0.15s ease",
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            color: "#C0392B",
+            fontSize: 13,
+            lineHeight: 1,
+            padding: 3,
+          }}
+        >
+          ✕
+        </button>
       )}
     </div>
   );
@@ -522,6 +579,52 @@ function TabItem({ active, label, onClick }) {
       }}
     >
       {label}
+    </div>
+  );
+}
+
+function SidebarCaseItem({ c, active, entCount, onSelect, onDelete }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={onSelect}
+      style={{
+        position: "relative",
+        padding: "10px 12px",
+        borderRadius: 4,
+        cursor: "pointer",
+        marginBottom: 6,
+        border: `1px solid ${active ? T.ink : "transparent"}`,
+        background: active ? T.panel2 : "transparent",
+        transition: "all 0.15s ease",
+      }}
+    >
+      <div style={{ fontFamily: fontSans, fontSize: 13, fontWeight: active ? 600 : 500, color: T.ink, paddingRight: 20 }}>{c.name}</div>
+      <div style={{ fontFamily: fontMono, fontSize: 10, fontWeight: 500, fontFeatureSettings: '"tnum" 1', color: T.inkDim, marginTop: 4 }}>
+        {entCount} entities · {new Date(c.created).toLocaleDateString()}
+      </div>
+      <button
+        onClick={(e) => { e.stopPropagation(); onDelete(); }}
+        title="Delete case"
+        style={{
+          position: "absolute",
+          top: 8,
+          right: 8,
+          opacity: hovered ? 1 : 0,
+          transition: "opacity 0.15s ease",
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          color: "#C0392B",
+          fontSize: 13,
+          lineHeight: 1,
+          padding: 3,
+        }}
+      >
+        ✕
+      </button>
     </div>
   );
 }
