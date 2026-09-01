@@ -25,7 +25,7 @@ export default function LoadingScreen({ onDone }) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "var(--bg)",
+        background: "#fff",
         opacity: phase === "exit" ? 0 : 1,
         transition: phase === "exit" ? "opacity 0.6s ease" : "none",
         pointerEvents: "none",
@@ -42,7 +42,7 @@ export default function LoadingScreen({ onDone }) {
           fontSize: 22,
           fontWeight: 700,
           letterSpacing: "0.06em",
-          color: "var(--text-h)",
+          color: "#111827",
           animation: "df-fade-up 0.6s 0.3s ease both",
         }}
       >
