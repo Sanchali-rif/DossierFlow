@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import LoadingScreen from "./components/ui/LoadingScreen";
 import { usePersistedDb } from "./utils/usePersistedDb";
 import logoSrc from "./assets/logo.svg";
 import { fontDisplay, fontMono, fontSans, T, CategoryColors } from "./constants/theme";
@@ -19,6 +20,7 @@ import AIChat from "./components/AIChat";
 import { buildAIContext } from "./utils/AIContext";
 
 export default function DossierFlow() {
+  const [loading, setLoading] = useState(true);
   const [db, setDb] = usePersistedDb();
   const [activeTab, setActiveTab] = useState("graph");
   const [modal, setModal] = useState(null);
@@ -133,9 +135,11 @@ export default function DossierFlow() {
   ];
 
   return (
-    <div
-      className="dossierflow-shell"
-      style={{ fontFamily: fontSans, color: T.ink, height: "100vh", overflow: "hidden", position: "relative", background: T.bg }}
+    <>
+      {loading && <LoadingScreen onDone={() => setLoading(false)} />}
+      <div
+        className="dossierflow-shell"
+        style={{ fontFamily: fontSans, color: T.ink, height: "100vh", overflow: "hidden", position: "relative", background: T.bg }}
     >
       <BackgroundCanvas />
       <div
@@ -464,6 +468,7 @@ export default function DossierFlow() {
         />
       )}
     </div>
+    </>
   );
 }
 
